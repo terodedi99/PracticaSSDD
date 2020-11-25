@@ -16,7 +16,7 @@ class ServerI(icegauntlet.Server):
             print('Error.RoomAlreadyExists {}'.format(err)) 
             raise IceGauntlet.RoomAlreadyExists(str(err))
     
-    def Publish(self,toke,roomData,current=None):ç
+    def Publish(self,toke,roomData,current=None):
         try:
             
         except Exception as err:
