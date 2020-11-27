@@ -9,3 +9,6 @@ import IceGauntlet
 class ClientAuth(Ice._Application):
     def run(self,argv):
         proxy=self.communicator().stringToProxy(argv[1])
+
+
+        """""
