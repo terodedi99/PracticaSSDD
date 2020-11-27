@@ -3,12 +3,12 @@ import os
 import Ice
 
 Ice.loadSlice("icegauntlet.ice")
-import icegauntlet
+import IceGauntlet
 
 class Server(Ice.Application):
     def run():
 
-class ServerI(icegauntlet.Server):
+class ServerI(IceGauntlet.Server):
     def getRoom(self,current=None):
         try:
             
