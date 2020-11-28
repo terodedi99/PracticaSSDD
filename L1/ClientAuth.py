@@ -6,9 +6,20 @@ import Ice
 Ice.loadSlice('icegauntlet.ice')
 import IceGauntlet
 
-class ClientAuth(Ice._Application):
+class ClientAuth(Ice.Application):
     def run(self,argv):
         proxy=self.communicator().stringToProxy(argv[1])
+        server= IceGauntlet.AuthenticationPrx.checkedCast(proxy)
+
+        if not server:
+            raise RuntimeError('Invalid Proxy')
+
+        
+        print(server.isValid("pedro"))
 
 
-        """""
+        
+
+ClientAuth().main(sys.argv)
+
+        
