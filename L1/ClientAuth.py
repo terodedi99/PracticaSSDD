@@ -5,6 +5,9 @@ import sys
 import Ice 
 Ice.loadSlice('icegauntlet.ice')
 import IceGauntlet
+import hashlib
+
+
 
 class ClientAuth(Ice.Application):
     def run(self,argv):
@@ -15,8 +18,10 @@ class ClientAuth(Ice.Application):
             raise RuntimeError('Invalid Proxy')
 
         
-        print(server.isValid("pedro"))
+        print(server.isValid("fTEDqMMqrDE1JY3IkrW3shbEm57iB8InYttOi9Xd"))
 
+
+        ##server.changePassword("pedro.millan",None, "puta")
 
         
 
