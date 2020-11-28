@@ -9,7 +9,7 @@ module IceGauntlet{
         string info;
     };
 
-    interface AuthenticationI{
+    interface Authentication{
         bool isValid(string token) throws Unauthorized;
         string getNewToken(string user,string passHash) throws Unauthorized;
         void changePassword (string user,string currentPassHash,string newPassHash) throws Unauthorized;
