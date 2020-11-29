@@ -56,7 +56,7 @@ class AuthenticationI(IceGauntlet.Authentication):
     def __commit__(self):
         logging.debug('User database updated!')
         with open(USERS_FILE, 'w') as contents:
-            print(json.dump(self._users_, contents, indent=4, sort_keys=True))
+            json.dump(self._users_, contents, indent=4, sort_keys=True)
 
     def changePassword(self, user, currentPassHash, newPassHash, current=None):
         '''Set/Change user password'''
