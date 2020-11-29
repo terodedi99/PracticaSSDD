@@ -20,7 +20,7 @@ class ClientAuth(Ice.Application):
 
 
         if  len(sys.argv) < 3:
-            raise RuntimeError('No user')
+            raise RuntimeError('Error. Parametros insuficientes')
 
         user= argv[2]
         p = getpass.getpass()
@@ -35,7 +35,7 @@ class ClientAuth(Ice.Application):
         if option == 'c':
 
             try:
-                print("Nueva Contraseña: ")
+                print("Nueva contraseña: ")
                 np = getpass.getpass()
             except Exception as err:
                 print('ERROR:', err)
@@ -44,25 +44,13 @@ class ClientAuth(Ice.Application):
             passHash = hashlib.sha256(p.encode()).hexdigest()
             newpassHash = hashlib.sha256(np.encode()).hexdigest()
             server.changePassword(user,passHash,newpassHash)
-        elif option == 'p' :
+        elif option == 't' :
             passHash = hashlib.sha256(p.encode()).hexdigest()
-            print(server.getNewToken("pedro.millan",passHash))
+            print(server.getNewToken(user,passHash))
 
         elif option == 'd':
             print('Opcion por defecto')
 
-
-            
-
-        ##print(token)
-        ##print(server.isValid(token))
-        #print(server.isValid("fTEDqMMqrDE1JY3IkrW3shbEm57iB8InYttOi9Xd"))
-        ##print(server.getNewToken("pedro.millan","f86b776078cd49867e70c387164c81adefa91350f56d948991ec852419e1ec19"))
-
-        ##print(server.isValid('FbilB401HoxBilz4BJUbFJs51WgyoCtf8TfwK4qh'))
-
-
-        ##token= server.getNewToken(u , passHash)
 
 ClientAuth().main(sys.argv)
 
