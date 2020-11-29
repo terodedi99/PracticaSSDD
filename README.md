@@ -1,5 +1,5 @@
 # GameroMillanRodriguez
-Proyect url:https://github.com/jesusgamtello/GameroMillanRodriguez/new/master?readme=1
+Proyect url:https://github.com/jesusgamtello/GameroMillanRodriguez
 
 Proyect members:
 - Alumno 1 Jesus.Gamero@alu.uclm.es
