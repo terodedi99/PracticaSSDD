@@ -4,6 +4,7 @@ import Ice
 import logging
 Ice.loadSlice("icegauntlet.ice")
 import IceGauntlet
+import json 
 
 class ServerI(IceGauntlet.Server):
     def __init__(self, auth):
@@ -18,11 +19,14 @@ class ServerI(IceGauntlet.Server):
             raise IceGauntlet.RoomAlreadyExists(str(err))
     
     def Publish(self,token,roomData,current=None):
+        i=1
+
         if self.auth_server.isValid(token):
+            ruta='client-distrib-icegauntlet/assets/level_{}.json'.format(i)
+            with open(ruta,'w') as f:
+                json.dump(roomData, f, indent=4)
             print('El token es valido')
-            print('Datos: ')
-            print(token)
-            print(roomData)
+            i+=1
         else: 
             raise IceGauntlet.Unauthorized('Error.Invalid token')
             
