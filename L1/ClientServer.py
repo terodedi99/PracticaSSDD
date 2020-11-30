@@ -7,6 +7,7 @@ Ice.loadSlice('icegauntlet.ice')
 import IceGauntlet
 import hashlib
 import getpass
+import json 
 
 
 class ClientServer(Ice.Application):
@@ -26,8 +27,17 @@ class ClientServer(Ice.Application):
 
         if argv[4] == 'p':
             # publish
+            datos={}
             try:
-                server.Publish(argv[3], argv[5])
+                ruta='client-distrib-icegauntlet/assets/'+argv[5]
+                with open(ruta) as f:
+                    datos=f.read()
+                    datos=json.loads(datos)
+            except:
+                print("No se ha podido leer el fichero json de busqueda")
+                
+            try:
+                server.Publish(argv[3],datos)
             except Exception as err:
                 print('ERROR:', err)
         elif argv[4] == 'r':
