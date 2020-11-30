@@ -29,9 +29,12 @@ class ServerI(IceGauntlet.Server):
     def Remove(self,token,roomName,current=None):
         if self.auth_server.isValid(token):
             print('El token es valido')
-            print('Datos: ')
             print(token)
-            print(roomData)
+            if(os.path.exists('client-distrib-icegauntlet/assets/'+roomName)):
+                
+                os.remove('client-distrib-icegauntlet/assets/'+roomName)
+            else:
+                raise IceGauntlet.RoomNotExists('Error.RoomNotExists')     
         else: 
             raise IceGauntlet.RoomNotExists('Error.RoomNotExists')
      
