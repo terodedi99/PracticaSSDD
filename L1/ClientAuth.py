@@ -7,7 +7,8 @@ Ice.loadSlice('icegauntlet.ice')
 import IceGauntlet
 import hashlib
 import getpass
-
+import argparse
+import json
 
 class ClientAuth(Ice.Application):
     def run(self,argv):
@@ -23,10 +24,15 @@ class ClientAuth(Ice.Application):
             raise RuntimeError('Error. Parametros insuficientes')
 
         user= argv[2]
-        p = getpass.getpass()
-
-
-
+        password_hash=self.leer_json("users.json",user)
+       
+        if password_hash == None:
+            print('creando nueva contraseña...')
+            p = getpass.getpass()
+            passHash = hashlib.sha256(p.encode()).hexdigest()
+            print(password_hash)
+            server.changePassword(user,None,passHash)
+        
         if len(sys.argv)==4:
             option = argv[3]
         else:
@@ -40,8 +46,8 @@ class ClientAuth(Ice.Application):
             except Exception as err:
                 print('ERROR:', err)
     
-    
-            passHash = hashlib.sha256(p.encode()).hexdigest()
+
+            #passHash = hashlib.sha256(p.encode()).hexdigest()
             newpassHash = hashlib.sha256(np.encode()).hexdigest()
             server.changePassword(user,passHash,newpassHash)
         elif option == 't' :
