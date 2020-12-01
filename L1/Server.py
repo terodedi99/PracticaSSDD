@@ -4,9 +4,10 @@ import Ice
 import logging
 Ice.loadSlice("icegauntlet.ice")
 import IceGauntlet
-import json 
+import json
+import yaml
 
-class ServerI(IceGauntlet.Server):
+class ServerI(IceGauntlet.Rooms):
     def __init__(self, auth):
         self.auth_server = auth
         self.room = ''
@@ -20,7 +21,7 @@ class ServerI(IceGauntlet.Server):
     
     def Publish(self,token,roomData,current=None):
         i=1
-
+        roomData=yaml.load(roomData)
         if self.auth_server.isValid(token):
             ruta='client-distrib-icegauntlet/assets/level_{}.json'.format(i)
             with open(ruta,'w') as f:
