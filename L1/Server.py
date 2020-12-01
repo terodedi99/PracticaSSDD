@@ -20,14 +20,29 @@ class ServerI(IceGauntlet.Rooms):
             raise IceGauntlet.RoomAlreadyExists(str(err))
     
     def Publish(self,token,roomData,current=None):
-        i=1
+        datos=''
         roomData=yaml.load(roomData)
+        '''try:
+            with open(roomData) as f:
+                datos=f.read()
+            datos=json.loads(datos)  
+            print(datos)
+        except:
+            print("No se ha podido leer el fichero json")'''
+        
+       
+
         if self.auth_server.isValid(token):
-            ruta='client-distrib-icegauntlet/assets/level_{}.json'.format(i)
-            with open(ruta,'w') as f:
-                json.dump(roomData, f, indent=4)
-            print('El token es valido')
-            i+=1
+            print('el token es valido')
+            room=roomData["room"]
+            print(' la room es',room)
+            ruta='client-distrib-icegauntlet/assets/'+room+'.json'
+            if not os.path.isfile(ruta):            
+                with open(ruta,'w') as f:
+                    json.dump(roomData, f, indent=4)
+                print('El token es valido')
+            else:
+                raise IceGauntlet.RoomAlreadyExists('Error.Room exits')
         else: 
             raise IceGauntlet.Unauthorized('Error.Invalid token')
             

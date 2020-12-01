@@ -27,12 +27,12 @@ class ClientServer(Ice.Application):
 
         if argv[4] == 'p':
             # publish
-            datos={}
             try:
                 ruta='client-distrib-icegauntlet/assets/'+argv[5]
-                with open(ruta) as f:
+                with open(ruta,'r') as f:
                     datos=f.read()
                     datos=json.loads(datos)
+                    print(datos)
             except:
                 print("No se ha podido leer el fichero json de busqueda")
                 
