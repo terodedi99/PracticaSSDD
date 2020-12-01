@@ -14,7 +14,7 @@ class ClientServer(Ice.Application):
     def run(self,argv):
         # serverprx argv[1] name_user argv[2] token argv[3] op argv[4] name_json argv[5]
         proxy=self.communicator().stringToProxy(argv[1])
-        server= IceGauntlet.ServerPrx.checkedCast(proxy)
+        server= IceGauntlet.RoomsPrx.checkedCast(proxy)
 
         if not server:
             raise RuntimeError('Invalid Proxy')
@@ -35,12 +35,11 @@ class ClientServer(Ice.Application):
                     print(datos)
             except:
                 print("No se ha podido leer el fichero json de busqueda")
-
-            server.Publish(argv[3],datos)  
-            '''try:
-                server.Publish(argv[3],datos)
+                
+            try:
+                server.Publish(argv[3],str(datos))
             except Exception as err:
-                print('ERROR:', err)'''
+                print('ERROR:', err)
         elif argv[4] == 'r':
             # remove
             try:
