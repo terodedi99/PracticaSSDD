@@ -20,6 +20,7 @@ class ServerI(IceGauntlet.Server):
     
     def Publish(self,token,roomData,current=None):
         i=1
+        
 
         if self.auth_server.isValid(token):
             ruta='client-distrib-icegauntlet/assets/level_{}.json'.format(i)
