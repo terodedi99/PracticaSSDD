@@ -41,22 +41,52 @@ class ServerI(IceGauntlet.Rooms):
                 with open(ruta,'w') as f:
                     json.dump(roomData, f, indent=4)
                 print('El token es valido')
+
+                try:
+                    with open('maps.json') as f:
+                        maps=f.read()
+                    maps=json.loads(maps)
+                except:
+                    print("Eror, Not found data base")
+
+                maps[room]={'token' : token}
+                with open('maps.json','w') as f:
+                    json.dump(maps, f, indent=4)
             else:
                 raise IceGauntlet.RoomAlreadyExists('Error.Room exits')
         else: 
             raise IceGauntlet.Unauthorized('Error.Invalid token')
             
     def Remove(self,token,roomName,current=None):
+
+
         if self.auth_server.isValid(token):
-            print('El token es valido')
+
             print(token)
-            if(os.path.exists('client-distrib-icegauntlet/assets/'+roomName)):
+            if(os.path.exists('client-distrib-icegauntlet/assets/'+roomName+'.json')):
+            
+                try:
+                    with open('maps.json') as f:
+                        maps=f.read()
+                    maps=json.loads(maps)
+                except:
+                    print("Eror, Not found data base")
+
+                if (maps[roomName]['token']!= token):
+                    raise IceGauntlet.Unauthorized()
+                else:
+                    os.remove('client-distrib-icegauntlet/assets/'+roomName+'.json')
+                    maps[roomName]={}
+                    
+                    with open('maps.json','w') as f:
+                        json.dump(maps, f, indent=4)
+
+
                 
-                os.remove('client-distrib-icegauntlet/assets/'+roomName)
             else:
                 raise IceGauntlet.RoomNotExists('Error.RoomNotExists')     
         else: 
-            raise IceGauntlet.RoomNotExists('Error.RoomNotExists')
+            raise IceGauntlet.Unauthorized()
      
 
 class Server(Ice.Application):
