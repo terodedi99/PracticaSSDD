@@ -11,14 +11,16 @@ import atexit
 import logging
 import argparse
 
+import Ice
+Ice.loadSlice("icegauntlet.ice")
+import IceGauntlet
+
 import game
 import game.common
 import game.screens
 import game.pyxeltools
 import game.orchestration
-import Ice
-Ice.loadSlice("icegauntlet.ice")
-import IceGauntlet
+
 
 EXIT_OK = 0
 BAD_COMMAND_LINE = 1
@@ -52,17 +54,18 @@ def parse_commandline():
 
 class DistribDungeonMap:
     '''Store a list of rooms'''
-    def __init__(self, proxy):
-        proxy_dungeon=self.communicator().stringToProxy(proxy)
+    def __init__(self):
+        communicator= Ice.initialize(sys.argv)
+        proxy_dungeon=communicator.stringToProxy(sys.argv[1])
         dungeon= IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
-        self._levels_ = levels
+        
         #self._levels_.reverse()
 
     @property
     def next_room(self):
-        map=dungeon.getRoom()
+        #map=dungeon.getRoom()
         
-
+        return "assets/tutorial.json"
     @property
     def finished(self):
         return False
@@ -75,7 +78,7 @@ def main():
         return BAD_COMMAND_LINE
         
    
-    dungeon = DistribDungeonMap(user_options.PROXY) # ['tutorial.json']
+    dungeon = DistribDungeonMap() # ['tutorial.json']
     game.pyxeltools.initialize()
     
     print(dungeon)
