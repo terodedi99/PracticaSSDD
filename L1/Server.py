@@ -7,31 +7,17 @@ import IceGauntlet
 import json
 import yaml
 
-class ServerI(IceGauntlet.Rooms):
+class ServerI(IceGauntlet.RoomManager):
     def __init__(self, auth):
         self.auth_server = auth
         self.room = ''
 
-    def getRoom(self,current=None):
-        try:
-            return self.room
-        except Exception as err:
-            print('Error.RoomAlreadyExists {}'.format(err)) 
-            raise IceGauntlet.RoomAlreadyExists(str(err))
+
     
     def Publish(self,token,roomData,current=None):
         datos=''
         roomData=yaml.load(roomData)
-        '''try:
-            with open(roomData) as f:
-                datos=f.read()
-            datos=json.loads(datos)  
-            print(datos)
-        except:
-            print("No se ha podido leer el fichero json")'''
-        
-       
-
+               
         if self.auth_server.isValid(token):
             print('el token es valido')
             room=roomData["room"]
@@ -53,9 +39,9 @@ class ServerI(IceGauntlet.Rooms):
                 with open('maps.json','w') as f:
                     json.dump(maps, f, indent=4)
             else:
-                raise IceGauntlet.RoomAlreadyExists('Error.Room exits')
+                raise IceGauntlet.RoomAlreadyExists()
         else: 
-            raise IceGauntlet.Unauthorized('Error.Invalid token')
+            raise IceGauntlet.Unauthorized()
             
     def Remove(self,token,roomName,current=None):
 
@@ -84,11 +70,17 @@ class ServerI(IceGauntlet.Rooms):
 
                 
             else:
-                raise IceGauntlet.RoomNotExists('Error.RoomNotExists')     
+                raise IceGauntlet.RoomNotExists()     
         else: 
             raise IceGauntlet.Unauthorized()
      
-
+class DungeonI(IceGauntlet.Dungeon):
+    def getRoom(self,current=None):
+        try:
+            return self.room
+        except Exception as err:
+            print('Error.RoomAlreadyExists {}'.format(err)) 
+            raise IceGauntlet.RoomAlreadyExists(str(err))
 class Server(Ice.Application):
     '''
     Server
@@ -100,6 +92,8 @@ class Server(Ice.Application):
         with Ice.initialize(sys.argv, "server.config") as communicator:
             auth_proxy=self.communicator().stringToProxy(sys.argv[1])
             auth_server= IceGauntlet.AuthenticationPrx.checkedCast(auth_proxy)
+            
+
 
 
             if not auth_server:
@@ -111,8 +105,19 @@ class Server(Ice.Application):
             proxy = adapter.add(server, Ice.stringToIdentity("server"))
             print('"{}"'.format(proxy), flush=True)
             adapter.activate()
+
+
+            adapter_dungeon = communicator.createObjectAdapter("DungeonAdapter")
+            server_dungeon = DungeonI()
+            proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("server_dungeon"))
+            print('"{}"'.format(proxy_dungeon), flush=True)
+            adapter_dungeon.activate()
+
+            
             communicator.waitForShutdown()
-    
+        
+
+
 
             return 0
 
