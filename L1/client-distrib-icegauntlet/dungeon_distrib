@@ -16,7 +16,9 @@ import game.common
 import game.screens
 import game.pyxeltools
 import game.orchestration
-
+import Ice
+Ice.loadSlice("icegauntlet.ice")
+import IceGauntlet
 
 EXIT_OK = 0
 BAD_COMMAND_LINE = 1
@@ -35,33 +37,35 @@ def bye(*args, **kwargs):
 def parse_commandline():
     '''Parse and check commandline'''
     parser = argparse.ArgumentParser('IceDungeon Local Game')
-    parser.add_argument('LEVEL', nargs='+', default=[DEFAULT_ROOM], help='List of levels')
+    parser.add_argument('PROXY', nargs='+', default=[DEFAULT_ROOM], help='List of levels')
     parser.add_argument(
         '-p', '--player', default=DEFAULT_HERO, choices=game.common.HEROES,
         dest='hero', help='Hero to play with'
     )
     options = parser.parse_args()
 
-    for level_file in options.LEVEL:
+    '''for level_file in options.PROXY:
         if not game.assets.search(level_file):
             logging.error(f'Level "{level_file}" not found!')
-            return None
+            return None'''
     return options
 
 class DistribDungeonMap:
     '''Store a list of rooms'''
-    def __init__(self, levels):
+    def __init__(self, proxy):
+        proxy_dungeon=self.communicator().stringToProxy(proxy)
+        dungeon= IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
         self._levels_ = levels
-        self._levels_.reverse()
+        #self._levels_.reverse()
 
     @property
     def next_room(self):
-        if self._levels_:
-            return self._levels_.pop()
+        map=dungeon.getRoom()
+        
 
     @property
     def finished(self):
-        return not self._levels_
+        return False
 
 def main():
     '''Start game according to commandline'''
@@ -70,10 +74,10 @@ def main():
     if not user_options:
         return BAD_COMMAND_LINE
         
-    # Pasar por parametro el prx del servidor y pasarselo al constructor de la nueva clase segun indicaciones del correo de Tobias
-
+   
+    dungeon = DistribDungeonMap(user_options.PROXY) # ['tutorial.json']
     game.pyxeltools.initialize()
-    dungeon = game.DistribDungeonMap(user_options.LEVEL) # ['tutorial.json']
+    
     print(dungeon)
     gauntlet = game.Game(user_options.hero, dungeon) # DEFAULT_HERO
     print(user_options.hero)
