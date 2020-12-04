@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys 
-import Ice 
+# pylint: disable=C0114
+# pylint: disable=C0115
+# pylint: disable=C0116
+# pylint: disable=C0103
+# pylint: disable=E0401
+# pylint: disable=W0703
+# pylint: disable=C0413
+
+import sys
+import json
+import Ice
 Ice.loadSlice('icegauntlet.ice')
 import IceGauntlet
-import hashlib
-import getpass
-import json 
-
 
 class ClientServer(Ice.Application):
     def run(self,argv):
@@ -22,9 +27,6 @@ class ClientServer(Ice.Application):
 
         if  len(sys.argv) < 6:
             raise RuntimeError('Error')
-
-        user= argv[2]
-
         if argv[4] == 'p':
             # publish
             ruta='Mapas-creados/'+argv[5]
@@ -35,7 +37,6 @@ class ClientServer(Ice.Application):
                     datos=json.loads(datos)
             except:
                 print("No se ha podido leer el fichero json de busqueda")
-                
             try:
                 #server.getRoom()
                 server.Publish(argv[3],str(datos))
@@ -47,8 +48,5 @@ class ClientServer(Ice.Application):
                 server.Remove(argv[3], argv[5])
             except Exception as err:
                 print('ERROR:', err)
-        
-
 ClientServer().main(sys.argv)
-
         
