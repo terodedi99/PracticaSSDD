@@ -49,10 +49,10 @@ class ServerI(IceGauntlet.RoomManager):
         if self.auth_server.isValid(token):
 
             print(token)
-            if(os.path.exists('client-distrib-icegauntlet/assets/maps'+roomName+'.json')):
+            if(os.path.exists('client-distrib-icegauntlet/assets/maps/'+roomName+'.json')):
             
                 try:
-                    with open('maps.json') as f:
+                    with open('client-distrib-icegauntlet/publicmaps.json') as f:
                         maps=f.read()
                     maps=json.loads(maps)
                 except:
@@ -61,7 +61,7 @@ class ServerI(IceGauntlet.RoomManager):
                 if (maps[roomName]['token']!= token):
                     raise IceGauntlet.Unauthorized()
                 else:
-                    os.remove('client-distrib-icegauntlet/assets/'+roomName+'.json')
+                    os.remove('client-distrib-icegauntlet/assets/maps/'+roomName+'.json')
                     maps[roomName]={}
                     
                     with open('maps.json','w') as f:
@@ -87,7 +87,7 @@ class DungeonI(IceGauntlet.Dungeon):
 
         for key in maps:
             keys.append(key)
-            
+
         shuffle(keys)
         
         mapa= keys[0]
