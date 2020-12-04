@@ -6,6 +6,7 @@ Ice.loadSlice("icegauntlet.ice")
 import IceGauntlet
 import json
 import yaml
+from random import shuffle
 
 class ServerI(IceGauntlet.RoomManager):
     def __init__(self, auth):
@@ -19,24 +20,23 @@ class ServerI(IceGauntlet.RoomManager):
         roomData=yaml.load(roomData)
                
         if self.auth_server.isValid(token):
-            print('el token es valido')
             room=roomData["room"]
-            print(' la room es',room)
-            ruta='client-distrib-icegauntlet/assets/'+room+'.json'
+            
+            ruta='client-distrib-icegauntlet/assets/maps/'+room+'.json'
             if not os.path.isfile(ruta):            
                 with open(ruta,'w') as f:
                     json.dump(roomData, f, indent=4)
                 print('El token es valido')
 
                 try:
-                    with open('maps.json') as f:
+                    with open('client-distrib-icegauntlet/maps.json') as f:
                         maps=f.read()
-                    maps=json.loads(maps)
+                        maps=json.loads(maps)
                 except:
                     print("Eror, Not found data base")
 
                 maps[room]={'token' : token}
-                with open('maps.json','w') as f:
+                with open('client-distrib-icegauntlet/publicmaps.json','w') as f:
                     json.dump(maps, f, indent=4)
             else:
                 raise IceGauntlet.RoomAlreadyExists()
@@ -49,7 +49,7 @@ class ServerI(IceGauntlet.RoomManager):
         if self.auth_server.isValid(token):
 
             print(token)
-            if(os.path.exists('client-distrib-icegauntlet/assets/'+roomName+'.json')):
+            if(os.path.exists('client-distrib-icegauntlet/assets/maps'+roomName+'.json')):
             
                 try:
                     with open('maps.json') as f:
@@ -76,11 +76,24 @@ class ServerI(IceGauntlet.RoomManager):
      
 class DungeonI(IceGauntlet.Dungeon):
     def getRoom(self,current=None):
+        keys=[]
+        mapa =''
         try:
-            return self.room
-        except Exception as err:
-            print('Error.RoomAlreadyExists {}'.format(err)) 
-            raise IceGauntlet.RoomAlreadyExists(str(err))
+            with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                maps=f.read()
+                maps=json.loads(maps)
+        except:
+            print("Eror, Not found data base")
+
+        for key in maps:
+            keys.append(key)
+            
+        shuffle(keys)
+        
+        mapa= keys[0]
+
+        print('assets/maps/'+mapa+'.json')
+        return 'assets/maps/'+mapa+'.json'
 class Server(Ice.Application):
     '''
     Server
