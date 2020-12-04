@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys 
-import Ice 
-Ice.loadSlice('icegauntlet.ice')
-import IceGauntlet
+# pylint: disable=C0114
+# pylint: disable=C0115
+# pylint: disable=C0116
+# pylint: disable=C0103
+# pylint: disable=E0401
+# pylint: disable=W0703
+# pylint: disable=C0413
+
+import sys
+import json
 import hashlib
 import getpass
-import argparse
-import json
 import os
+
+import Ice
+Ice.loadSlice('icegauntlet.ice')
+import IceGauntlet
 
 class ClientAuth(Ice.Application):
     def leer_json(self,fichero,user):
@@ -18,8 +26,7 @@ class ClientAuth(Ice.Application):
                 usuario=f.read()
             usuario=json.loads(usuario)
         except:
-            print("Eror, Not found data base")
-        
+            print("Error, not found data base")
         try :
             password=usuario[user]['password_hash']
             return password
@@ -41,14 +48,12 @@ class ClientAuth(Ice.Application):
 
         user= argv[2]
         password_hash=self.leer_json('users.json',user)
-       
-        if password_hash == None:
-            print('creando nueva contraseña...')
+        if password_hash==None:
+            print('Creando nueva contraseña...')
             p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(password_hash)
             server.changePassword(user,None,passHash)
-        
         if len(sys.argv)==4:
             option = argv[3]
         else:
@@ -59,12 +64,10 @@ class ClientAuth(Ice.Application):
             passHash = hashlib.sha256(p.encode()).hexdigest()
 
             try:
-                print("---Introducir nueva contraseña---")
+                print("--- Introducir nueva contraseña ---")
                 np = getpass.getpass()
             except Exception as err:
                 print('ERROR:', err)
-    
-
             #passHash = hashlib.sha256(p.encode()).hexdigest()
             newpassHash = hashlib.sha256(np.encode()).hexdigest()
             server.changePassword(user,passHash,newpassHash)
@@ -72,12 +75,8 @@ class ClientAuth(Ice.Application):
             p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(server.getNewToken(user,passHash))
-            
-
         elif option == 'd':
-            os.system('python3 ClientServer.py "server -t -e 1.1:tcp -h 192.168.0.15 -p 8700 -t 60000" jesus.gamero "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod" r mi_mapa')
-
-
+            os.system('python3 ClientServer.py \
+            "server -t -e 1.1:tcp -h 192.168.0.15-p 8700 -t 60000" \
+            jesus.gamero "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod" r mi_mapa')
 ClientAuth().main(sys.argv)
-
-        
