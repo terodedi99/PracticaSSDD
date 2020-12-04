@@ -1,11 +1,10 @@
 {
-    "mapa_chetado": {
-        "token": "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod"
+    "empvUaDw": {
+        "token": "u7kgBBODvVc1N4PI3Z3HyGK978bNV1B8DBkc687h",
+        "name": "mi_mapa"
     },
-    "test room": {
-        "token": "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod"
-    },
-    "mi_mapa": {
-        "token": "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod"
+    "WskorXAe": {
+        "token": "u7kgBBODvVc1N4PI3Z3HyGK978bNV1B8DBkc687h",
+        "name": "test room"
     }
 }
