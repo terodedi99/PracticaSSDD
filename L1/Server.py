@@ -91,7 +91,7 @@ class DungeonI(IceGauntlet.Dungeon):
         shuffle(keys)
         
         mapa= keys[0]
-
+        print('hola')
         print('assets/maps/'+mapa+'.json')
         return 'assets/maps/'+mapa+'.json'
 class Server(Ice.Application):
