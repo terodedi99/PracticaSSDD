@@ -10,6 +10,7 @@ import sys
 import atexit
 import logging
 import argparse
+import json
 
 import Ice
 Ice.loadSlice("icegauntlet.ice")
@@ -20,6 +21,7 @@ import game.common
 import game.screens
 import game.pyxeltools
 import game.orchestration
+from random import shuffle
 
 
 EXIT_OK = 0
@@ -52,20 +54,21 @@ def parse_commandline():
             return None'''
     return options
 
-class DistribDungeonMap:
+class DistribDungeonMap(IceGauntlet.Dungeon):
     '''Store a list of rooms'''
     def __init__(self):
         communicator= Ice.initialize(sys.argv)
         proxy_dungeon=communicator.stringToProxy(sys.argv[1])
-        dungeon= IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
+        self.dungeon= IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
         
         #self._levels_.reverse()
 
     @property
     def next_room(self):
-        #map=dungeon.getRoom()
         
-        return "assets/tutorial.json"
+       
+        return self.dungeon.getRoom()
+
     @property
     def finished(self):
         return False
