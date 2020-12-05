@@ -22,6 +22,7 @@ _TIMEOUT_FOR_MESSAGE_ = 15
 
 # Get required arguments
 try:
+    # pylint: disable=W0632
     user, password, proxy = sys.argv[1:]
 except ValueError:
     print('Command arguments: {} <user> <password> <proxy>'.format(

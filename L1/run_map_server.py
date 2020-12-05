@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0114
 
 import os
 import sys
-
-try:
-    import pexpect
-except ImportError:
-    print('Required library "pexpect" not exists. Install with pip and try again')
-    sys.exit(1)
-
 
 try:
     proxy = sys.argv[1]
