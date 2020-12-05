@@ -4,20 +4,19 @@
 # pylint: disable=C0114
 # pylint: disable=C0115
 # pylint: disable=C0116
-# pylint: disable=C0103
-# pylint: disable=E0401
-# pylint: disable=W0703
-# pylint: disable=C0413
+
 # pylint: disable=C0303
-import sys 
-import Ice 
-Ice.loadSlice('icegauntlet.ice')
-import IceGauntlet
+import sys
+import json
+import os.path
 import hashlib
 import getpass
-import argparse
-import json
-import os
+
+import Ice 
+Ice.loadSlice('icegauntlet.ice')
+# pylint: disable=E0401
+# pylint: disable=C0413
+import IceGauntlet
 
 class ClientAuth(Ice.Application):
     def leer_json(self, fichero, user):
@@ -37,7 +36,6 @@ class ClientAuth(Ice.Application):
             return password
         except:
             return None
-
 
     def run(self, argv):
         proxy = self.communicator().stringToProxy(argv[1])
@@ -71,7 +69,8 @@ class ClientAuth(Ice.Application):
         if option == 'c':
             p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
-
+            # pylint: disable=C0103
+            # pylint: disable=W0702
             try:
                 print("--- Introducir nueva contraseña ---")
                 np = getpass.getpass()
@@ -90,8 +89,4 @@ class ClientAuth(Ice.Application):
         elif option == 'd':
             os.system('python3 ClientServer.py "server -t -e 1.1:tcp -h 192.168.0.15 -p 8700 \
                  -t 60000" jesus.gamero "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod" r mi_mapa')
-
-
 ClientAuth().main(sys.argv)
-
-        
