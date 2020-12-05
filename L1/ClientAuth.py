@@ -41,6 +41,8 @@ class ClientAuth(Ice.Application):
 
         user= argv[2]
         password_hash=self.leer_json('users.json',user)
+        print('Enter password: ')
+        p = getpass.getpass()
        
         if password_hash == None:
             print('creando nueva contraseña...')
@@ -69,7 +71,6 @@ class ClientAuth(Ice.Application):
             newpassHash = hashlib.sha256(np.encode()).hexdigest()
             server.changePassword(user,passHash,newpassHash)
         elif option == 't' :
-            p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(server.getNewToken(user,passHash))
             

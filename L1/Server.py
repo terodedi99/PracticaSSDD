@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import os 
 import Ice
@@ -23,7 +24,6 @@ class ServerI(IceGauntlet.RoomManager):
         roomAlreadyExists method
         '''
         ficheros=glob('client-distrib-icegauntlet/assets/maps/*.json')
-        print('metodo')
         try:
             for i in ficheros:
                 with open(i,'r') as f:
@@ -64,11 +64,26 @@ class ServerI(IceGauntlet.RoomManager):
             
     def Remove(self,token,roomName,current=None):
 
+        ficheros = glob('client-distrib-icegauntlet/assets/maps/*.json')
+        fichero_room = ''
+        nombrefichero = ''
+        try:
+            for i in ficheros:
+                with open(i,'r') as f:
+                    d=f.read()
+                d=json.loads(d)
+                if d['room']==roomName:
+                    fichero_room=i
+                    nombrefichero= i.split('/')[3].split('.')[0]
+        except:
+            raise IceGauntlet.RoomNotExists
+
+        print(nombrefichero)
 
         if self.auth_server.isValid(token):
 
             print(token)
-            if(os.path.exists('client-distrib-icegauntlet/assets/maps/'+roomName+'.json')):
+            if(os.path.exists(fichero_room)):
             
                 try:
                     with open('client-distrib-icegauntlet/publicmaps.json') as f:
@@ -77,13 +92,13 @@ class ServerI(IceGauntlet.RoomManager):
                 except:
                     print("Eror, Not found data base")
 
-                if (maps[roomName]['token']!= token):
+                if (maps[nombrefichero]['token']!= token):
                     raise IceGauntlet.Unauthorized()
                 else:
-                    os.remove('client-distrib-icegauntlet/assets/maps/'+roomName+'.json')
-                    maps[roomName]={}
+                    os.remove(fichero_room)
+                    maps[nombrefichero]={}
                     
-                    with open('maps.json','w') as f:
+                    with open('client-distrib-icegauntlet/publicmaps.json','w') as f:
                         json.dump(maps, f, indent=4)
 
 
