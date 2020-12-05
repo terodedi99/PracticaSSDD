@@ -13,7 +13,7 @@ except ValueError:
     )
     sys.exit(1)
 
-_COMMAND_ = './ClientServer.py "%(proxy)s" %(token)s r %(nombre_mapa)s '
+_COMMAND_ = './ClientServer.py "%(proxy)s" %(token)s r "%(nombre_mapa)s" '
 
 final_command = _COMMAND_ % {
     'nombre_mapa': roomName,

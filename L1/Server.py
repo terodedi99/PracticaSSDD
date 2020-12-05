@@ -99,7 +99,7 @@ class ServerI(IceGauntlet.RoomManager):
                     raise IceGauntlet.Unauthorized()
                 else:
                     os.remove(fichero_room)
-                    maps[nombrefichero] = {}
+                    del maps[nombrefichero]
                     with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
                         json.dump(maps, f, indent=4)
             else:
@@ -142,16 +142,28 @@ class Server(Ice.Application):
                 raise RuntimeError('Invalid Proxy')
             adapter = communicator.createObjectAdapter("ServerAdapter")
             server = ServerI(auth_server)
-            proxy = adapter.add(server, Ice.stringToIdentity("server"))
-            print('"{}"'.format(proxy), flush=True)
+            proxy = adapter.add(server, Ice.stringToIdentity("proxy_maps"))
+            #print('"{}"'.format(proxy), flush=True)
             adapter.activate()
 
 
             adapter_dungeon = communicator.createObjectAdapter("DungeonAdapter")
             server_dungeon = DungeonI()
-            proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("server_dungeon"))
-            print('"{}"'.format(proxy_dungeon), flush=True)
+            proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("proxy_dungeon"))
+            #print('"{}"'.format(proxy_dungeon), flush=True)
             adapter_dungeon.activate()
+            proxy_game='"{}"'.format(proxy_dungeon)
+            proxy_maps='"{}"'.format(proxy)
+
+            try: 
+                if sys.argv[2]=='proxy-maps':
+                    print(proxy_maps)
+                elif sys.argv[2]=='proxy-game':
+                    print(proxy_game)
+                else :
+                    print('Tipo de proxyy incorrecto. proxy-maps or proxy-game')
+            except :
+                print('No se ha especificado proxy, los argumentos tienen que ser: <proxy> , <tipo de proxy>')
             communicator.waitForShutdown()
             return 0
 if __name__ == '__main__':

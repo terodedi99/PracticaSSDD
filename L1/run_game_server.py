@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
-# pylint: disable=C0114
 
 import os
 import sys
+
+try:
+    import pexpect
+except ImportError:
+    print('Required library "pexpect" not exists. Install with pip and try again')
+    sys.exit(1)
+
 
 try:
     proxy = sys.argv[1]
@@ -13,12 +19,11 @@ except IndexError:
     )
     sys.exit(1)
 
-_COMMAND_ = './dungeon_distrib "%(proxy)s"'
+_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config proxy-game'
 
 final_command = _COMMAND_ % {
-
     'proxy': proxy
 }
 
-os.chdir('client-distrib-icegauntlet')
+
 os.system(final_command)
