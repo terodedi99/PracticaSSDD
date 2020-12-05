@@ -7,13 +7,13 @@ import sys
 
 try:
     proxy = sys.argv[1]
-except ValueError:
-    print('Command arguments: {} <user> <password> <proxy>'.format(
+except IndexError:
+    print('Command arguments: {} <proxy>'.format(
         os.path.basename(sys.argv[0]))
     )
     sys.exit(1)
 
-_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config'
+_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config proxy-maps'
 
 final_command = _COMMAND_ % {
     'proxy': proxy
