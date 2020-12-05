@@ -5,24 +5,24 @@
 # pylint: disable=C0115
 # pylint: disable=C0116
 # pylint: disable=C0103
-# pylint: disable=E0401
-# pylint: disable=W0703
-# pylint: disable=C0413
-# pylint: disable=C0303
-import sys 
-import Ice 
-Ice.loadSlice('icegauntlet.ice')
-import IceGauntlet
+# pylint: disable=W0702
+
+import sys
+import json
+import os.path
 import hashlib
 import getpass
-import argparse
-import json
-import os
+
+import Ice
+Ice.loadSlice('icegauntlet.ice')
+# pylint: disable=E0401
+# pylint: disable=C0413
+import IceGauntlet
 
 class ClientAuth(Ice.Application):
     def leer_json(self, fichero, user):
-        ''' 
-        method to read a json file 
+        '''
+        method to read a json file
         '''
 
         try:
@@ -31,13 +31,11 @@ class ClientAuth(Ice.Application):
             usuario = json.loads(usuario)
         except:
             print("Error, Not found data base")
-        
         try:
             password = usuario[user]['password_hash']
             return password
         except:
             return None
-
 
     def run(self, argv):
         proxy = self.communicator().stringToProxy(argv[1])
@@ -55,14 +53,12 @@ class ClientAuth(Ice.Application):
         password_hash = self.leer_json('users.json', user)
         print('Enter password: ')
         p = getpass.getpass()
-       
         if password_hash is None:
-            print('creando nueva contraseña...')
+            print('Creando nueva contraseña...')
             p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(password_hash)
             server.changePassword(user, None, passHash)
-        
         if len(sys.argv) == 4:
             option = argv[3]
         else:
@@ -71,27 +67,18 @@ class ClientAuth(Ice.Application):
         if option == 'c':
             p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
-
             try:
                 print("--- Introducir nueva contraseña ---")
                 np = getpass.getpass()
             except Exception as err:
                 print('ERROR:', err)
-    
-
             #passHash = hashlib.sha256(p.encode()).hexdigest()
             newpassHash = hashlib.sha256(np.encode()).hexdigest()
             server.changePassword(user, passHash, newpassHash)
         elif option == 't':
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(server.getNewToken(user, passHash))
-            
-
         elif option == 'd':
             os.system('python3 ClientServer.py "server -t -e 1.1:tcp -h 192.168.0.15 -p 8700 \
                  -t 60000" jesus.gamero "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod" r mi_mapa')
-
-
 ClientAuth().main(sys.argv)
-
-        

@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0114
 
 import os
 import sys
 
-try:
-    import pexpect
-except ImportError:
-    print('Required library "pexpect" not exists. Install with pip and try again')
-    sys.exit(1)
-
-
+# pylint: disable=W0632
 try:
     proxy, token, mapa = sys.argv[1:]
 except ValueError:
@@ -28,7 +23,3 @@ final_command = _COMMAND_ % {
 }
 
 os.system(final_command)
-
-
-
-
