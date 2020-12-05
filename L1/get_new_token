@@ -14,7 +14,7 @@ except ImportError:
     sys.exit(1)
 
 # Define command to request new token
-_COMMAND_ = 'python3 ClientAuth.py  default -t -e 1.1:tcp -h 192.168.8.108 -p 8080 -t 60000:tcp -h 172.17.0.1 -p 8080 -t 60000  pedro.millan t'
+_COMMAND_ = './ClientAuth.py "%(auth_proxy)s" %(user)s t'
 
 # Message used by authentication client when asking for a password
 _PASSWORD_MESSAGE_ = 'Enter password:'
@@ -30,11 +30,10 @@ except ValueError:
     sys.exit(1)
 
 # Compose command
-'''final_command = _COMMAND_ % {
+final_command = _COMMAND_ % {
     'user': user,
     'auth_proxy': proxy
-}'''
-final_command = 'python3 ClientAuth.py  default -t -e 1.1:tcp -h 192.168.8.108 -p 8080 -t 60000  pedro.millan t'
+}
 
 # Run command
 proc = pexpect.spawn(final_command, echo=False)
