@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0114
+# pylint: disable=C0115
 # pylint: disable=C0116
 # pylint: disable=C0103
+# pylint: disable=W0702
 # pylint: disable=R0903
-# pylint: disable=W0613
-# pylint: disable=R1720
+
 import sys
 import os
 import json
@@ -14,6 +16,8 @@ import string
 import yaml
 import Ice
 Ice.loadSlice("icegauntlet.ice")
+# pylint: disable=E0401
+# pylint: disable=C0413
 import IceGauntlet
 
 class ServerI(IceGauntlet.RoomManager):
@@ -35,7 +39,7 @@ class ServerI(IceGauntlet.RoomManager):
                     return False
             return True
         except:
-            print("Eror, Not found data base")
+            print("Error, not found data base")
 
     def Publish(self, token, roomData, current=None):
         datos = ''
@@ -64,6 +68,7 @@ class ServerI(IceGauntlet.RoomManager):
         else:
             raise IceGauntlet.Unauthorized()
 
+    # pylint: disable=W0613
     def Remove(self, token, roomName, current=None):
 
         ficheros = glob('client-distrib-icegauntlet/assets/maps/*.json')
@@ -82,7 +87,6 @@ class ServerI(IceGauntlet.RoomManager):
         if self.auth_server.isValid(token):
             print(token)
             if os.path.exists(fichero_room):
-            
                 try:
                     with open('client-distrib-icegauntlet/publicmaps.json') as f:
                         maps = f.read()
@@ -91,6 +95,7 @@ class ServerI(IceGauntlet.RoomManager):
                     print("Eror, Not found data base")
 
                 if maps[nombrefichero]['token'] != token:
+                    # pylint: disable=R1720
                     raise IceGauntlet.Unauthorized()
                 else:
                     os.remove(fichero_room)
@@ -98,12 +103,12 @@ class ServerI(IceGauntlet.RoomManager):
                     with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
                         json.dump(maps, f, indent=4)
             else:
-                raise IceGauntlet.RoomNotExists()     
+                raise IceGauntlet.RoomNotExists()
         else:
             raise IceGauntlet.Unauthorized()
 class DungeonI(IceGauntlet.Dungeon):
     def getRoom(self, current=None):
-        ''' 
+        '''
         getRoom method, return a map.json
         '''
         keys = []
