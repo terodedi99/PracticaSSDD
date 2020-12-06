@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0114
+
 import os
 import sys
-
-
 
 try:
     proxy = sys.argv[1]

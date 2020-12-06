@@ -1,3 +1,3 @@
 {
-    "proxy_game": "\"proxy_dungeon -t -e 1.1:tcp -h 192.168.0.15 -p 35861 -t 60000\""
+    "proxy_game": "\"proxy_dungeon -t -e 1.1:tcp -h 192.168.0.15 -p 37789 -t 60000\""
 }

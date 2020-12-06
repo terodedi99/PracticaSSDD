@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
 
-
+# pylint: disable=C0114
 import os
 import sys
 
 try:
-    import pexpect
-except ImportError:
-    print('Required library "pexpect" not exists. Install with pip and try again')
-    sys.exit(1)
-
-
-try:
-    proxy = sys.argv[1]
-    token= sys.argv[2]
-    roomName= sys.argv[3]
+    # pylint: disable=W0632
+    proxy, token, roomName = sys.argv[1:]
 except ValueError:
     print('Command arguments: {} <user> <password> <proxy>'.format(
         os.path.basename(sys.argv[0]))
