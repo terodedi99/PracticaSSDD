@@ -72,13 +72,15 @@ class ServerI(IceGauntlet.RoomManager):
                 with open(i,'r') as f:
                     d=f.read()
                 d=json.loads(d)
+                print(roomName)
                 if d['room']==roomName:
                     fichero_room=i
                     nombrefichero= i.split('/')[3].split('.')[0]
+                    print(nombrefichero)
+                    print(roomName)
         except:
             raise IceGauntlet.RoomNotExists
 
-        print(nombrefichero)
 
         if self.auth_server.isValid(token):
 
@@ -96,7 +98,7 @@ class ServerI(IceGauntlet.RoomManager):
                     raise IceGauntlet.Unauthorized()
                 else:
                     os.remove(fichero_room)
-                    maps[nombrefichero]={}
+                    del maps[nombrefichero]
                     
                     with open('client-distrib-icegauntlet/publicmaps.json','w') as f:
                         json.dump(maps, f, indent=4)
@@ -149,18 +151,32 @@ class Server(Ice.Application):
         
             adapter = communicator.createObjectAdapter("ServerAdapter")
             server = ServerI(auth_server)
-            proxy = adapter.add(server, Ice.stringToIdentity("server"))
-            print('"{}"'.format(proxy), flush=True)
+            proxy = adapter.add(server, Ice.stringToIdentity("proxy_maps"))
+            #print('"{}"'.format(proxy), flush=True)
             adapter.activate()
 
 
             adapter_dungeon = communicator.createObjectAdapter("DungeonAdapter")
             server_dungeon = DungeonI()
-            proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("server_dungeon"))
-            print('"{}"'.format(proxy_dungeon), flush=True)
+            proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("proxy_dungeon"))
+            #print('"{}"'.format(proxy_dungeon), flush=True)
             adapter_dungeon.activate()
 
+            proxy_game='"{}"'.format(proxy_dungeon) 
+            proxy_maps='"{}"'.format(proxy)
+
+            print(proxy_maps)
+
+            data = {
+                'proxy_game' : proxy_game
+            }
+
+            with open('proxy.json','w') as f:
+                    json.dump(data, f, indent=4)
             
+
+
+
             communicator.waitForShutdown()
         
 

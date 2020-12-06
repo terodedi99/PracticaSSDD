@@ -19,10 +19,11 @@ except ValueError:
     )
     sys.exit(1)
 
-_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config'
+_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config '
 
 final_command = _COMMAND_ % {
     'proxy': proxy
 }
+
 
 os.system(final_command)

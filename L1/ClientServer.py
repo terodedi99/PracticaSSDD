@@ -43,7 +43,7 @@ class ClientServer(Ice.Application):
                 print('ERROR:', err)
         elif argv[3] == 'r':
             # remove
-            print('hola')
+            print(argv[4])
             try:
                 server.Remove(argv[2], argv[4])
             except Exception as err:
