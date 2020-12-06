@@ -9,12 +9,12 @@ import sys
 try:
     proxy, token, mapa = sys.argv[1:]
 except ValueError:
-    print('Command arguments: {} <user> <password> <proxy>'.format(
+    print('Command arguments: {} <proxy> <token> <fichero>'.format(
         os.path.basename(sys.argv[0]))
     )
     sys.exit(1)
 
-_COMMAND_ = './ClientServer.py "%(proxy)s" %(token)s p %(fichero)s '
+_COMMAND_ = './ClientServer.py "%(proxy)s" %(token)s p %(fichero)s'
 
 final_command = _COMMAND_ % {
     'fichero': mapa,

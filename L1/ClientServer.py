@@ -36,7 +36,7 @@ class ClientServer(Ice.Application):
                     datos = f.read()
                     datos = json.loads(datos)
             except:
-                print("No se ha podido leer el fichero json de busqueda")
+                print("Error, data base not found")
             try:
                 server.Publish(argv[2], str(datos))
             except Exception as err:

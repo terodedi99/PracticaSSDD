@@ -57,8 +57,12 @@ class DistribDungeonMap(IceGauntlet.Dungeon):
         communicator = Ice.initialize(sys.argv)
         proxy_dungeon = communicator.stringToProxy(sys.argv[1])
         self.dungeon = IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
+
+        if not self.dungeon :
+            raise RuntimeError('Not proxy exixts')
     @property
     def next_room(self):
+       
         return self.dungeon.getRoom()
 
     @property
