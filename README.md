@@ -1,7 +1,7 @@
-# GameroMillanRodriguez
-Proyect url:https://github.com/jesusgamtello/GameroMillanRodriguez
+# SSDD-GameroMillanRodriguez
+Project URL: <https://github.com/jesusgamtello/SSDD-GameroMillanRodriguez.git>
 
-Proyect members:
-- Alumno 1 Jesus.Gamero@alu.uclm.es
-- Alumno 2 Teresa.Rodriguez4@alu.uclm.es
-- Alumno 3 Pedro.Millan@alu.uclm.es
+Project members:
+- Jesús Gamero Tello <Jesus.Gamero@alu.uclm.es>
+- Teresa Rodríguez de Dios <Teresa.Rodriguez4@alu.uclm.es>
+- Pedro Mullán Álvarez <Pedro.Millan@alu.uclm.es>
