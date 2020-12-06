@@ -155,17 +155,19 @@ class Server(Ice.Application):
             proxy_game='"{}"'.format(proxy_dungeon)
             proxy_maps='"{}"'.format(proxy)
 
-            try: 
-                if sys.argv[2]=='proxy-maps':
-                    print(proxy_maps)
-                elif sys.argv[2]=='proxy-game':
-                    print(proxy_game)
-                else :
-                    print('Tipo de proxyy incorrecto. proxy-maps or proxy-game')
-            except :
-                print('No se ha especificado proxy, los argumentos tienen que ser: <proxy> , <tipo de proxy>')
+            print(proxy_maps)
+
+            data = {
+                'proxy_game' : proxy_game
+            }
+
+            with open('proxy.json','w') as f:
+                    json.dump(data, f, indent=4)
+            
+
+            
             communicator.waitForShutdown()
-            return 0
+            
 if __name__ == '__main__':
     app = Server()
     sys.exit(app.main(sys.argv))

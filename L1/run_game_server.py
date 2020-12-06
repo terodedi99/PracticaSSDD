@@ -1,29 +1,21 @@
 #!/usr/bin/env python3
 
 
-import os
-import sys
-
-try:
-    import pexpect
-except ImportError:
-    print('Required library "pexpect" not exists. Install with pip and try again')
-    sys.exit(1)
+import json 
+import time
 
 
 try:
-    proxy = sys.argv[1]
-except IndexError:
-    print('Command arguments: {} <proxy>'.format(
-        os.path.basename(sys.argv[0]))
-    )
-    sys.exit(1)
+    with open('proxy.json') as f:
+        data=f.read()
+        data=json.loads(data)
+except:
+    print("Eror, Not found data base")
 
-_COMMAND_ = './Server.py "%(proxy)s" --Ice.Config=server.config proxy-game'
+try:
+    print(data['proxy_game'])
 
-final_command = _COMMAND_ % {
-    'proxy': proxy
-}
+except :
+    print('Server no  ejecutado')
 
 
-os.system(final_command)
