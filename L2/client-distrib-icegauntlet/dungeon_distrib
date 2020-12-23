@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# pylint: disable=C0116
+
+'''
+    ICE Gauntlet LOCAL GAME
+'''
+
+import sys
+import atexit
+import argparse
+
+
+import Ice
+Ice.loadSlice("icegauntlet.ice")
+# pylint: disable=C0413
+# pylint: disable=E0401
+import IceGauntlet
+
+import game
+import game.common
+import game.screens
+import game.pyxeltools
+import game.orchestration
+
+
+
+EXIT_OK = 0
+BAD_COMMAND_LINE = 1
+
+DEFAULT_ROOM = 'tutorial.json'
+DEFAULT_HERO = game.common.HEROES[0]
+
+
+@atexit.register
+# pylint: disable=W0613
+def bye(*args, **kwargs):
+    '''Exit callback, use for shoutdown'''
+    print('Thanks for playing!')
+# pylint: enable=W0613
+
+def parse_commandline():
+    '''Parse and check commandline'''
+    parser = argparse.ArgumentParser('IceDungeon Local Game')
+    parser.add_argument('PROXY', nargs='+', default=[DEFAULT_ROOM], help='List of levels')
+    parser.add_argument(
+        '-p', '--player', default=DEFAULT_HERO, choices=game.common.HEROES,
+        dest='hero', help='Hero to play with'
+    )
+    options = parser.parse_args()
+    return options
+
+class DistribDungeonMap(IceGauntlet.Dungeon):
+    '''Store a list of rooms'''
+    def __init__(self):
+        communicator = Ice.initialize(sys.argv)
+        proxy_dungeon = communicator.stringToProxy(sys.argv[1])
+        self.dungeon = IceGauntlet.DungeonPrx.checkedCast(proxy_dungeon)
+    @property
+    def next_room(self):
+        return self.dungeon.getRoom()
+
+    @property
+    def finished(self):
+        return False
+
+def main():
+    '''Start game according to commandline'''
+    # Borrar
+    user_options = parse_commandline()
+    if not user_options:
+        return BAD_COMMAND_LINE
+    dungeon = DistribDungeonMap() # ['tutorial.json']
+    game.pyxeltools.initialize()
+    print(dungeon)
+    gauntlet = game.Game(user_options.hero, dungeon) # DEFAULT_HERO
+    print(user_options.hero)
+    gauntlet.add_state(game.screens.TileScreen, game.common.INITIAL_SCREEN)
+    gauntlet.add_state(game.screens.StatsScreen, game.common.STATUS_SCREEN)
+    gauntlet.add_state(game.screens.GameScreen, game.common.GAME_SCREEN)
+    gauntlet.add_state(game.screens.GameOverScreen, game.common.GAME_OVER_SCREEN)
+    gauntlet.add_state(game.screens.GoodEndScreen, game.common.GOOD_END_SCREEN)
+    gauntlet.start()
+
+    return EXIT_OK
+
+
+if __name__ == '__main__':
+    sys.exit(main())
