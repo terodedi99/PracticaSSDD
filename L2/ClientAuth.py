@@ -79,6 +79,6 @@ class ClientAuth(Ice.Application):
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(server.getNewToken(user, passHash))
         elif option == 'd':
-            os.system('python3 ClientServer.py "server -t -e 1.1:tcp -h 192.168.0.15 -p 8700 \
-                 -t 60000" jesus.gamero "bSOlGteFhvjxLEZQF4nTs7LM0KHcMI1qVEbgEkod" r mi_mapa')
+            print(server.getOwner("izZA404ytFwp9h7dIcYazah0BaTchSYZIuvwu7lT"))
+            
 ClientAuth().main(sys.argv)

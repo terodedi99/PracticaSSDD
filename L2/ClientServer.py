@@ -30,7 +30,8 @@ class ClientServer(Ice.Application):
         # pylint: disable=W0703
         if argv[3] == 'p':
             # publish
-            ruta = 'Mapas-creados/'+argv[4]
+            print('hola')
+            ruta = argv[4]
             try:
                 with open(ruta, 'r') as f:
                     datos = f.read()
