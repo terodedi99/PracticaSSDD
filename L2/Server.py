@@ -45,29 +45,26 @@ class ServerI(IceGauntlet.RoomManager):
         datos = ''
         roomData = yaml.load(roomData)
         room_name = roomData['room']
-        if self.auth_server.isValid(token):
-            print('El token es valido')
-            room = ''.join(sample(string.ascii_letters, 8))
-            ruta = 'client-distrib-icegauntlet/assets/maps/'+room+'.json'
-            if self.RoomExists(roomData['data']):
-                with open(ruta, 'w') as f:
-                    json.dump(roomData, f, indent=4)
-                try:
-                    with open('client-distrib-icegauntlet/publicmaps.json') as f:
-                        maps = f.read()
-                        maps = json.loads(maps)
-                except:
-                    print("Eror, Not found data base")
+       
+        user= self.auth_server.getOwner(token)
+        room = ''.join(sample(string.ascii_letters, 8))
+        ruta = 'client-distrib-icegauntlet/assets/maps/'+room+'.json'
+        if self.RoomExists(roomData['data']):
+            with open(ruta, 'w') as f:
+                json.dump(roomData, f, indent=4)
+            try:
+                with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                    maps = f.read()
+                    maps = json.loads(maps)
+            except:
+                print("Eror, Not found data base")
 
-                maps[room] = {'token' : token,
-                            'name' : room_name}
-                with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
-                    json.dump(maps, f, indent=4)
-            else:
-                raise IceGauntlet.RoomAlreadyExists()
+            maps[room] = {'user' : user,
+                        'name' : room_name}
+            with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
+                json.dump(maps, f, indent=4)
         else:
-            raise IceGauntlet.Unauthorized()
-
+            raise IceGauntlet.RoomAlreadyExists()
     # pylint: disable=W0613
     def Remove(self, token, roomName, current=None):
 
@@ -84,28 +81,26 @@ class ServerI(IceGauntlet.RoomManager):
                     nombrefichero = i.split('/')[3].split('.')[0]
         except:
             raise IceGauntlet.RoomNotExists
-        if self.auth_server.isValid(token):
-            print(token)
-            if os.path.exists(fichero_room):
-                try:
-                    with open('client-distrib-icegauntlet/publicmaps.json') as f:
-                        maps = f.read()
-                    maps = json.loads(maps)
-                except FileNotFoundError:
-                    print("Eror, Not found data base")
 
-                if maps[nombrefichero]['token'] != token:
-                    # pylint: disable=R1720
-                    raise IceGauntlet.Unauthorized()
-                else:
-                    os.remove(fichero_room)
-                    del maps[nombrefichero]
-                    with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
-                        json.dump(maps, f, indent=4)
+            
+        if os.path.exists(fichero_room):
+            try:
+                with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                    maps = f.read()
+                maps = json.loads(maps)
+            except FileNotFoundError:
+                print("Eror, Not found data base")
+
+            if maps[nombrefichero]['user'] != self.auth_server.getOwner(token):
+                # pylint: disable=R1720
+                raise IceGauntlet.Unauthorized()
             else:
-                raise IceGauntlet.RoomNotExists()
+                os.remove(fichero_room)
+                del maps[nombrefichero]
+                with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
+                    json.dump(maps, f, indent=4)
         else:
-            raise IceGauntlet.Unauthorized()
+            raise IceGauntlet.RoomNotExists()
 class DungeonI(IceGauntlet.Dungeon):
     def getRoom(self, current=None):
         '''
