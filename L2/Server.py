@@ -15,12 +15,13 @@ from glob import glob
 import string
 import yaml
 import Ice
+import IceStorm
 Ice.loadSlice("icegauntlet.ice")
 # pylint: disable=E0401
 # pylint: disable=C0413
 import IceGauntlet
 
-class ServerI(IceGauntlet.RoomManager):
+class RoomManager(IceGauntlet.RoomManager):
     def __init__(self, auth):
         self.auth_server = auth
         self.room = ''
@@ -122,21 +123,56 @@ class DungeonI(IceGauntlet.Dungeon):
 
         print('assets/maps/'+mapa+'.json')
         return 'assets/maps/'+mapa+'.json'
+class ServerII(IceGauntlet.RoomManagerSync):
+    def hello(self,manager,managerid,current=None):
+
+        if not manager in self.server_3.lista:
+
+            print('HOLA')
+            self.server_3.lista.append(manager)
+        else:
+            self.announce(IceGauntlet.RoomManagerPrx.uncheckedCast(manager),"hola")
+
+    
+    def announce(self,manager,managerid,current=None):
+        print("[ANNOUNCE] Previous orchestrator: %s" % manager)
+        self.server_3.lista.append(manager)
+    
+    def newRoom(self,roomName,managerid,current=None):
+        print('HOla')
+
+    def removedRoom(self,roomName,current=None):
+        print('Hola')
+
 class Server(Ice.Application):
     '''
     Server
     '''
+    lista = []
+
+    def get_topic_manager(self):
+        key = 'IceStorm.TopicManager.Proxy'
+        proxy = self.communicator().propertyToProxy(key)
+        if proxy is None:
+            print("property {} not set".format(key))
+            return None
+        
+        print("Using IceStorm in: '%s'" % key)
+        return IceStorm.TopicManagerPrx.checkedCast(proxy)
+    
     def run(self, args):
         '''
         Server loop
         '''
+        
+
         with Ice.initialize(sys.argv, "server.config") as communicator:
             auth_proxy = self.communicator().stringToProxy(sys.argv[1])
             auth_server = IceGauntlet.AuthenticationPrx.checkedCast(auth_proxy)
             if not auth_server:
                 raise RuntimeError('Invalid Proxy')
             adapter = communicator.createObjectAdapter("ServerAdapter")
-            server = ServerI(auth_server)
+            server = RoomManager(auth_server)
             proxy = adapter.add(server, Ice.stringToIdentity("proxy_maps"))
             #print('"{}"'.format(proxy), flush=True)
             adapter.activate()
@@ -149,6 +185,51 @@ class Server(Ice.Application):
             adapter_dungeon.activate()
             proxy_game='"{}"'.format(proxy_dungeon)
             proxy_maps='"{}"'.format(proxy)
+            
+
+            ###### Canal de eventos 
+            topic_mgr = self.get_topic_manager()
+            if not topic_mgr:
+                print('Invalid proxy')
+                return 2
+            
+
+            ####### Subscriptor 
+            ic = self.communicator()
+            servant_roomManager = ServerII()
+            servant_roomManager.server_3 = self
+            adapter_instance = ic.createObjectAdapter("RoomManagerSyncAdapter")
+            subscriber_instance = adapter_instance.addWithUUID(servant_roomManager)
+            print(subscriber_instance)
+            topic_name = "RoomManagerTopic"
+            qos = {}
+
+            try:
+                topic = topic_mgr.retrieve(topic_name)
+            except IceStorm.NoSuchTopic:
+                print("no such topic found, creating")
+                topic = topic_mgr.create(topic_name)
+            
+            topic.subscribeAndGetPublisher(qos, subscriber_instance)
+
+            ## #### Publicador 
+            publisher_instance = topic.getPublisher()
+            server_instance = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(publisher_instance)
+
+
+            
+           
+            server_instance.hello(IceGauntlet.RoomManagerPrx.uncheckedCast(publisher_instance),str(subscriber_instance))
+            
+    
+            ## Empezar 
+            adapter_instance.activate()
+            self.shutdownOnInterrupt()
+            ic.waitForShutdown()
+            ## Acabar 
+            topic.unsubscribe(subscriber_instance)
+
+
 
             try: 
                 if sys.argv[2]=='proxy-maps':
@@ -161,6 +242,10 @@ class Server(Ice.Application):
                 print('No se ha especificado proxy, los argumentos tienen que ser: <proxy> , <tipo de proxy>')
             communicator.waitForShutdown()
             return 0
+
+        
+
+
 if __name__ == '__main__':
     app = Server()
     sys.exit(app.main(sys.argv))
