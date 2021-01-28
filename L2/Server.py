@@ -131,7 +131,7 @@ class ServerII(IceGauntlet.RoomManagerSync):
             print('HOLA')
             self.server_3.lista.append(manager)
         else:
-            self.announce(IceGauntlet.RoomManagerPrx.uncheckedCast(manager),"hola")
+            self.announce(IceGauntlet.RoomManagerPrx.uncheckedCast(self.server_3.servant_subscriber),"hola")
 
     
     def announce(self,manager,managerid,current=None):
@@ -149,6 +149,7 @@ class Server(Ice.Application):
     Server
     '''
     lista = []
+    servant_subscriber=None
 
     def get_topic_manager(self):
         key = 'IceStorm.TopicManager.Proxy'
