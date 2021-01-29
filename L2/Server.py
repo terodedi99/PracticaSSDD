@@ -27,8 +27,9 @@ ADAPTER = "ServerAdapter"
 DUNGEONADAPTER = "DungeonAdapter"
 ICESTORM_MANAGER = 'SSDD-GameroMillanRodriguez.IceStorm/TopicManager'
 SYNCCHANGEL = "RoomManagerSyncChannel"
+AMISTADES=[]
 
-class RoomManager(IceGauntlet.RoomManager):
+class ServerI(IceGauntlet.RoomManager):
     def __init__(self, auth):
         self.auth_server = auth
         self.room = ''
@@ -140,12 +141,15 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
 
     def hello(self, room_manager_prx, id_server, current=None):
-        print('HELLO    '+self.id_server+' conoce a ' + id_server)
-        servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
-        servers_sync_prx.announce(self.room_manager_prx, self.id_server)  
+        print('HELLO    '+self.id_server+' saluda a ' + id_server)
+        servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher())
+        if  self.id_server != id_server:
+            AMISTADES.append(id_server)
+            servers_sync_prx.announce(room_manager_prx, id_server)  
 
 
     def announce(self, room_manager_prx, id_server, current=None):
+        AMISTADES.append(self.id_server)
         print('ANNOUNCE '+self.id_server+' conoce a ' + id_server)
         
     def hello_client(self, current=None):
@@ -156,19 +160,7 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 class Server(Ice.Application):
     '''
     Server
-    '''
-    lista = []
-    servant_subscriber=None
-
-    def get_topic_manager(self):
-        key = 'IceStorm.TopicManager.Proxy'
-        proxy = self.communicator().propertyToProxy(key)
-        if proxy is None:
-            print("property {} not set".format(key))
-            return None
-        
-        print("Using IceStorm in: '%s'" % key)
-        return IceStorm.TopicManagerPrx.checkedCast(proxy)
+    ''' 
     
     def run(self, args):
         '''
