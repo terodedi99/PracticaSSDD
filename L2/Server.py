@@ -151,6 +151,13 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
     def hello_client(self, current=None):
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
         servers_sync_prx.hello(self.room_manager_prx, self.id_server)  
+    
+    def newRoom(self, roomName, managerId, current=None):
+        print('newRoom')
+    
+    def removedRoom(self, roomName, current=None):
+        print('removedRoom')
+
 
 
 class Server(Ice.Application):
