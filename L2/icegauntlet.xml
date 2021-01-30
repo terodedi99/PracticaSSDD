@@ -42,7 +42,7 @@
          </service>
       </service-template>
       <server-template id="AuthorizationTemplate">
-         <server id="AuthorizationServer" activation="manual" exe="./auth_server" pwd="/home/ubuntu/Documentos/SSDD-GameroMillanRodriguez-master/L2">
+         <server id="AuthorizationServer" activation="manual" exe="./auth_server" pwd="/home/pedro/Escritorio/SSDD/GameroMillanRodriguez/L2">
             <properties>
             </properties>
             <adapter name="AuthenticationAdapter" endpoints="tcp" id="${server}.AuthenticationAdapter">
@@ -102,7 +102,7 @@
       </server-template>
       <server-template id="RoomManagerTemplate">
          <parameter name="index"/>
-         <server id="${index}_RoomManagerServer" activation="manual" exe="./Server.py" pwd="/home/ubuntu/Documentos/SSDD-GameroMillanRodriguez-master/L2">
+         <server id="${index}_RoomManagerServer" activation="manual" exe="./Server.py" pwd="/home/pedro/Escritorio/SSDD/GameroMillanRodriguez/L2">
             <properties>
                <property name="property_authorization" value="default"/>
             </properties>
