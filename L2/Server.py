@@ -27,13 +27,14 @@ ADAPTER = "ServerAdapter"
 DUNGEONADAPTER = "DungeonAdapter"
 ICESTORM_MANAGER = 'SSDD-GameroMillanRodriguez.IceStorm/TopicManager'
 SYNCCHANGEL = "RoomManagerSyncChannel"
-lista=[]
+lista = {}
 
 class ServerI(IceGauntlet.RoomManager):
-    def __init__(self, auth):
+    def __init__(self, auth , room_manager_sync_channel_prx,id_server):
         self.auth_server = auth
         self.room = ''
-
+        self.room_manager_sync_channel_prx=room_manager_sync_channel_prx
+        self.id_server=id_server
     def RoomExists(self, roomData):
         '''
         roomAlreadyExists method
@@ -52,8 +53,10 @@ class ServerI(IceGauntlet.RoomManager):
 
     def publish(self, token, roomData, current=None):
         datos = ''
-        roomData = yaml.load(roomData)
+        roomData = json.loads(roomData)
         room_name = roomData['room']
+        print('hola')
+        ##self.server_sync.newRoom("hola","hola")
        
         user= self.auth_server.getOwner(token)
         room = ''.join(sample(string.ascii_letters, 8))
@@ -72,6 +75,8 @@ class ServerI(IceGauntlet.RoomManager):
                         'name' : room_name}
             with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
                 json.dump(maps, f, indent=4)
+            servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
+            servers_sync_prx.newRoom(room_name, self.id_server)  
         else:
             raise IceGauntlet.RoomAlreadyExists()
     # pylint: disable=W0613
@@ -146,7 +151,7 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
         if self.id_server != id_server :
-            lista.append(id_server)
+            lista[id_server]= room_manager_prx
             servers_sync_prx.announce(self.room_manager_prx, self.id_server)  
          
 
@@ -155,17 +160,18 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         
         
         if self.id_server != id_server and id_server not in lista :
-            lista.append(id_server)
+            lista[id_server]= room_manager_prx
             print('ANNOUNCE '+id_server+' conoce a ' + self.id_server)
         
     def hello_client(self, current=None):
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
         servers_sync_prx.hello(self.room_manager_prx, self.id_server)  
     
-    def newRoom(self, roomName, managerId, current=None):
+    def newRoom(self, roomName, id_server, current=None):
         '''room_manager_prx.publish
         a = [room_manager_prx, room_manager_prx, room_manager_prx]
         a[0].publish'''
+        newroom=lista[id_server].getRoom(roomName)
         
         print('newRoom')
     
@@ -213,7 +219,7 @@ class Server(Ice.Application):
         server_sync = ServerSyncI(id_server, room_manager_sync_channel_prx, room_manager_prx)
         server_sync_prx = adapter.addWithUUID(server_sync)
         room_manager_sync_channel_prx.subscribeAndGetPublisher(dict(), server_sync_prx)
-
+        # Pasar esta variable como parametro a ServerI()
         adapter.activate()
         #print('"{}"'.format(proxy), flush=True)
 
@@ -232,6 +238,7 @@ class Server(Ice.Application):
         #print('"{}"'.format(proxy_dungeon), flush=True)
         adapter_dungeon.activate()
         proxy_game='"{}"'.format(proxy_dungeon)
+        print(proxy)
         
         '''
         try: 
