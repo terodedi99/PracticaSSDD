@@ -27,7 +27,7 @@ ADAPTER = "ServerAdapter"
 DUNGEONADAPTER = "DungeonAdapter"
 ICESTORM_MANAGER = 'SSDD-GameroMillanRodriguez.IceStorm/TopicManager'
 SYNCCHANGEL = "RoomManagerSyncChannel"
-AMISTADES=[]
+lista=[]
 
 class ServerI(IceGauntlet.RoomManager):
     def __init__(self, auth):
@@ -141,20 +141,37 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
 
     def hello(self, room_manager_prx, id_server, current=None):
-        print('HELLO    '+self.id_server+' saluda a ' + id_server)
-        servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher())
-        if  self.id_server != id_server:
-            AMISTADES.append(id_server)
-            servers_sync_prx.announce(room_manager_prx, id_server)  
+        print('HELLO    '+id_server+' conoce a ' + self.id_server)
+       
+        
+        servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
+        if self.id_server != id_server :
+            lista.append(id_server)
+            servers_sync_prx.announce(self.room_manager_prx, self.id_server)  
+         
 
 
     def announce(self, room_manager_prx, id_server, current=None):
-        AMISTADES.append(self.id_server)
-        print('ANNOUNCE '+self.id_server+' conoce a ' + id_server)
+        
+        
+        if self.id_server != id_server and id_server not in lista :
+            lista.append(id_server)
+            print('ANNOUNCE '+id_server+' conoce a ' + self.id_server)
         
     def hello_client(self, current=None):
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
         servers_sync_prx.hello(self.room_manager_prx, self.id_server)  
+    
+    def newRoom(self, roomName, managerId, current=None):
+        '''room_manager_prx.publish
+        a = [room_manager_prx, room_manager_prx, room_manager_prx]
+        a[0].publish'''
+        
+        print('newRoom')
+    
+    def removedRoom(self, roomName, current=None):
+        print('removedRoom')
+
 
 
 class Server(Ice.Application):
@@ -166,10 +183,11 @@ class Server(Ice.Application):
         '''
         Server loop
         '''
+        
         auth_proxy = self.communicator().propertyToProxy(PROPERTY_AUTH)
         auth_server = IceGauntlet.AuthenticationPrx.checkedCast(auth_proxy)
         if not auth_server:
-                raise RuntimeError('Invalid Proxy')
+            raise RuntimeError('Invalid Proxy')
 
         id_server = uuid.uuid4().hex
         adapter = self.communicator().createObjectAdapter(ADAPTER)
