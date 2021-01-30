@@ -12,7 +12,7 @@ import os
 import json
 from random import shuffle, sample
 from glob import glob
-import string
+import string , shutil
 import yaml
 import Ice
 import IceStorm
@@ -53,19 +53,19 @@ class ServerI(IceGauntlet.RoomManager):
 
     def publish(self, token, roomData, current=None):
         datos = ''
-        roomData = json.loads(roomData)
+        roomData = yaml.load(roomData)
         room_name = roomData['room']
-        print('hola')
+        print(self.id_server)
         ##self.server_sync.newRoom("hola","hola")
        
         user= self.auth_server.getOwner(token)
         room = ''.join(sample(string.ascii_letters, 8))
-        ruta = 'client-distrib-icegauntlet/assets/maps/'+room+'.json'
+        ruta = 'servidor_'+id_server+'/'+room+'.json'
         if self.RoomExists(roomData['data']):
             with open(ruta, 'w') as f:
                 json.dump(roomData, f, indent=4)
             try:
-                with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                with open('servidor_'+id_server+'/publicmaps.json') as f:
                     maps = f.read()
                     maps = json.loads(maps)
             except:
@@ -73,7 +73,7 @@ class ServerI(IceGauntlet.RoomManager):
 
             maps[room] = {'user' : user,
                         'name' : room_name}
-            with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
+            with open('servidor_'+id_server+'/publicmaps.json', 'w') as f:
                 json.dump(maps, f, indent=4)
             servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
             servers_sync_prx.newRoom(room_name, self.id_server)  
@@ -115,6 +115,12 @@ class ServerI(IceGauntlet.RoomManager):
                     json.dump(maps, f, indent=4)
         else:
             raise IceGauntlet.RoomNotExists()
+
+    def getRoom(self,roomName):
+        print()
+        ###Buscar en la ruta 
+        ### si no esta lanzar error RoomNotexit 
+        #### return data 
 class DungeonI(IceGauntlet.Dungeon):
     def getRoom(self, current=None):
         '''
@@ -158,8 +164,8 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
     def announce(self, room_manager_prx, id_server, current=None):
         
-        
-        if self.id_server != id_server and id_server not in lista :
+        keys = lista.keys()
+        if self.id_server != id_server and id_server not in keys :
             lista[id_server]= room_manager_prx
             print('ANNOUNCE '+id_server+' conoce a ' + self.id_server)
         
@@ -171,7 +177,7 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         '''room_manager_prx.publish
         a = [room_manager_prx, room_manager_prx, room_manager_prx]
         a[0].publish'''
-        newroom=lista[id_server].getRoom(roomName)
+        #newroom=lista[id_server].getRoom(roomName)
         
         print('newRoom')
     
@@ -196,8 +202,9 @@ class Server(Ice.Application):
             raise RuntimeError('Invalid Proxy')
 
         id_server = uuid.uuid4().hex
+        os.mkdir('servidor_'+id_server)
         adapter = self.communicator().createObjectAdapter(ADAPTER)
-        server = ServerI(auth_server)
+        server = ServerI(auth_server,None, None)
         proxy = adapter.add(server, Ice.stringToIdentity("proxy_maps_"+id_server))
 
         icestorm_proxy = self.communicator().stringToProxy(ICESTORM_MANAGER)
@@ -226,6 +233,10 @@ class Server(Ice.Application):
         '''
         hello
         '''
+        file = open('servidor_'+id_server+'/publicmaps.json', "w")
+        file.close()
+        server.room_manager_sync_channel_prx=room_manager_sync_channel_prx
+        server.id_server=id_server
         server_sync.hello_client()
         
         
