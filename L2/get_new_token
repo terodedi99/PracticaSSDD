@@ -14,7 +14,7 @@ except ImportError:
     sys.exit(1)
 
 # Define command to request new token
-_COMMAND_ = './ClientAuth.py "%(auth_proxy)s" %(user)s t'
+_COMMAND_ = './ClientAuth.py --Ice.Config=cliente.config "%(auth_proxy)s" %(user)s t'
 
 # Message used by authentication client when asking for a password
 _PASSWORD_MESSAGE_ = 'Enter password:'
