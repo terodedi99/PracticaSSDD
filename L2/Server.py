@@ -181,10 +181,10 @@ class Server(Ice.Application):
         '''
         Server loop
         '''
-        i=0
-        nombre='server '+str(i)
-        os.mkdir(nombre)
-        i+=1
+        
+        '''nombre=''.join(sample(string.ascii_letters, 4))
+        os.mkdir('servidor_'+nombre)'''
+       
         auth_proxy = self.communicator().propertyToProxy(PROPERTY_AUTH)
         auth_server = IceGauntlet.AuthenticationPrx.checkedCast(auth_proxy)
         if not auth_server:
