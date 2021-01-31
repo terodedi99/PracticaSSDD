@@ -55,7 +55,6 @@ class ClientAuth(Ice.Application):
         p = getpass.getpass()
         if password_hash is None:
             print('Creando nueva contraseña...')
-            p = getpass.getpass()
             passHash = hashlib.sha256(p.encode()).hexdigest()
             print(password_hash)
             server.changePassword(user, None, passHash)
