@@ -14,7 +14,7 @@ except ValueError:
     )
     sys.exit(1)
 
-_COMMAND_ = './ClientServer.py "%(proxy)s" %(token)s p %(fichero)s '
+_COMMAND_ = './ClientServer.py --Ice.Config=cliente.config "%(proxy)s" %(token)s p %(fichero)s '
 
 final_command = _COMMAND_ % {
     'fichero': mapa,
