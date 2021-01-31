@@ -127,10 +127,12 @@ class ServerI(IceGauntlet.RoomManager):
                 with open(i, 'r') as f:
                     d = f.read()
                 d = json.loads(d)
+                if d['room'] == roomName:
+                    data=d['data']
         except:
             raise IceGauntlet.RoomNotExists()
         
-        return str(d['data'])
+        return str(data)
         ###Buscar en la ruta 
         ### si no esta lanzar error RoomNotexit 
         #### return data
@@ -198,9 +200,7 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
             conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
             mapas=conexion.availableRooms()
-            print(mapas)
             for i in mapas :
-                print('imprimo i : ', i)
                 conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
                 mapa=conexion.getRoom(i)
                 datos=json.loads(mapa)
@@ -236,7 +236,6 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
                 d = f.read()
             d = json.loads(d)
             if d['data'] == roomData:
-                print('FALSE')
                 return False
         return True
         print("Error, not found data base")
@@ -249,10 +248,33 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         servers_sync_prx.hello(self.room_manager_prx, self.id_server)  
     
     def newRoom(self, roomName, id_server, current=None):
-        '''room_manager_prx.publish
-        a = [room_manager_prx, room_manager_prx, room_manager_prx]
-        a[0].publish'''
-        #newroom=lista[id_server].getRoom(roomName)
+        if id_server != self.id_server:
+            room_manager_prx = lista[id_server]
+            conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
+
+            mapa= conexion.getRoom(roomName)
+            datos=json.loads(mapa)
+            habitacion = {
+                        "data" : datos,
+                        "room" : roomName
+                    }
+            room = ''.join(sample(string.ascii_letters, 8))
+            ruta = 'servidor_'+self.id_server+'/mapas/'+room+'.json'
+            if self.RoomExists(datos):
+                with open(ruta, 'w') as f:
+                    json.dump(habitacion, f, indent=4)
+                try:
+                    with open('servidor_'+self.id_server+'/publicmaps.json') as f:
+                        maps = f.read()
+                        maps = json.loads(maps)
+                except:
+                    print("Eror, Not found data base")
+
+                maps[room] = {'user' : id_server,
+                            'name' : roomName}
+                with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
+                    json.dump(maps, f, indent=4)
+
         
         print('newRoom')
     
