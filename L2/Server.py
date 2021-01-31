@@ -55,8 +55,6 @@ class ServerI(IceGauntlet.RoomManager):
         datos = ''
         roomData = yaml.load(roomData)
         room_name = roomData['room']
-        ##self.server_sync.newRoom("hola","hola")
-       
         user= self.auth_server.getOwner(token)
         room = ''.join(sample(string.ascii_letters, 8))
         ruta = 'servidor_'+self.id_server+'/mapas/'+room+'.json'
@@ -75,14 +73,13 @@ class ServerI(IceGauntlet.RoomManager):
             with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
                 json.dump(maps, f, indent=4)
             servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
-            servers_sync_prx.newRoom(room_name, self.id_server)  
+            servers_sync_prx.newRoom(room_name, self.id_server)
         else:
             raise IceGauntlet.RoomAlreadyExists()
     # pylint: disable=W0613
     def remove(self, token, roomName, current=None):
 
         ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
-        print(ficheros)
         fichero_room = ''
         nombrefichero = ''
         try:
@@ -244,16 +241,22 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
         
     def hello_client(self, current=None):
+        '''
+        hello_client method
+        '''
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
         servers_sync_prx.hello(self.room_manager_prx, self.id_server)  
     
     def newRoom(self, roomName, id_server, current=None):
+        '''
+        newRoom method 
+        '''
         if id_server != self.id_server:
             room_manager_prx = lista[id_server]
             conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
 
-            mapa= conexion.getRoom(roomName)
-            datos=json.loads(mapa)
+            mapa = conexion.getRoom(roomName)
+            datos = json.loads(mapa)
             habitacion = {
                         "data" : datos,
                         "room" : roomName
@@ -279,8 +282,11 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         print('newRoom')
     
     def removedRoom(self, roomName, current=None):
+        '''
+        removedRoom method
+        '''
+
         print('removeRooom')
-        print(self.id_server)
         ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
         fichero_room = ''
         nombrefichero = ''
@@ -336,8 +342,8 @@ class Server(Ice.Application):
 
         icestorm_proxy = self.communicator().stringToProxy(ICESTORM_MANAGER)
         if icestorm_proxy is None:
-        	print("property '{}' not set".format(ICESTORM_MANAGER))
-        	return None
+            print("property '{}' not set".format(ICESTORM_MANAGER))
+            return None
 
         icestorm_topic_manager = IceStorm.TopicManagerPrx.checkedCast(icestorm_proxy)
         if not icestorm_topic_manager:
@@ -353,43 +359,23 @@ class Server(Ice.Application):
         server_sync = ServerSyncI(id_server, room_manager_sync_channel_prx, room_manager_prx)
         server_sync_prx = adapter.addWithUUID(server_sync)
         room_manager_sync_channel_prx.subscribeAndGetPublisher(dict(), server_sync_prx)
-        # Pasar esta variable como parametro a ServerI()
         adapter.activate()
-        #print('"{}"'.format(proxy), flush=True)
 
-        '''
-        hello
-        '''
         file = open('servidor_'+id_server+'/publicmaps.json', "w")
         file.write('{}')
         file.close()
-        server.room_manager_sync_channel_prx=room_manager_sync_channel_prx
-        server.id_server=id_server
+        server.room_manager_sync_channel_prx = room_manager_sync_channel_prx
+        server.id_server = id_server
         server_sync.hello_client()
         
         
         # Dungeon Server
-
-
         adapter_dungeon = self.communicator().createObjectAdapter(DUNGEONADAPTER)
         server_dungeon = DungeonI()
         proxy_dungeon = adapter.add(server_dungeon, Ice.stringToIdentity("proxy_dungeon_"+id_server))
-        #print('"{}"'.format(proxy_dungeon), flush=True)
         adapter_dungeon.activate()
         proxy_game='"{}"'.format(proxy_dungeon)
         print(proxy)
-        
-        '''
-        try: 
-            if sys.argv[2]=='proxy-maps':
-                print(proxy_maps)
-            elif sys.argv[2]=='proxy-game':
-                print(proxy_game)
-            else :
-                print('Tipo de proxyy incorrecto. proxy-maps or proxy-game')
-        except :
-            print('No se ha especificado proxy, los argumentos tienen que ser: <proxy> , <tipo de proxy>')
-        '''
         self.communicator().waitForShutdown()
         return 0
 if __name__ == '__main__':

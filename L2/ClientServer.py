@@ -30,7 +30,6 @@ class ClientServer(Ice.Application):
         # pylint: disable=W0703
         if argv[3] == 'p':
             # publish
-            print('hola')
             ruta = argv[4]
             try:
                 with open(ruta, 'r') as f:
