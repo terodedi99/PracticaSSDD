@@ -48,5 +48,7 @@ class ClientServer(Ice.Application):
                 server.remove(argv[2], argv[4])
             except Exception as err:
                 print('ERROR:', err)
-
+        elif argv[3] == 'j':
+            lista=server.getRoom(argv[4])
+            print(lista)
 ClientServer().main(sys.argv)
