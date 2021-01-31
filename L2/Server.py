@@ -12,7 +12,7 @@ import os
 import json
 from random import shuffle, sample
 from glob import glob
-import string
+import string , shutil
 import yaml
 import Ice
 import IceStorm
@@ -39,33 +39,32 @@ class ServerI(IceGauntlet.RoomManager):
         '''
         roomAlreadyExists method
         '''
-        ficheros = glob('client-distrib-icegauntlet/assets/maps/*.json')
-        try:
-            for i in ficheros:
-                with open(i, 'r') as f:
-                    d = f.read()
-                d = json.loads(d)
-                if d['data'] == roomData:
-                    return False
-            return True
-        except:
-            print("Error, not found data base")
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+    #try:
+        for i in ficheros:
+            with open(i, 'r') as f:
+                d = f.read()
+            d = json.loads(d)
+            if d['data'] == roomData:
+                return False
+        return True
+    #except:
+        print("Error, not found data base")
 
     def publish(self, token, roomData, current=None):
         datos = ''
-        roomData = json.loads(roomData)
+        roomData = yaml.load(roomData)
         room_name = roomData['room']
-        print('hola')
         ##self.server_sync.newRoom("hola","hola")
        
         user= self.auth_server.getOwner(token)
         room = ''.join(sample(string.ascii_letters, 8))
-        ruta = 'client-distrib-icegauntlet/assets/maps/'+room+'.json'
+        ruta = 'servidor_'+self.id_server+'/mapas/'+room+'.json'
         if self.RoomExists(roomData['data']):
             with open(ruta, 'w') as f:
                 json.dump(roomData, f, indent=4)
             try:
-                with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                with open('servidor_'+self.id_server+'/publicmaps.json') as f:
                     maps = f.read()
                     maps = json.loads(maps)
             except:
@@ -73,7 +72,7 @@ class ServerI(IceGauntlet.RoomManager):
 
             maps[room] = {'user' : user,
                         'name' : room_name}
-            with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
+            with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
                 json.dump(maps, f, indent=4)
             servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
             servers_sync_prx.newRoom(room_name, self.id_server)  
@@ -82,7 +81,8 @@ class ServerI(IceGauntlet.RoomManager):
     # pylint: disable=W0613
     def remove(self, token, roomName, current=None):
 
-        ficheros = glob('client-distrib-icegauntlet/assets/maps/*.json')
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+        print(ficheros)
         fichero_room = ''
         nombrefichero = ''
         try:
@@ -92,14 +92,14 @@ class ServerI(IceGauntlet.RoomManager):
                 d = json.loads(d)
                 if d['room'] == roomName:
                     fichero_room = i
-                    nombrefichero = i.split('/')[3].split('.')[0]
+                    nombrefichero = i.split('/')[2].split('.')[0]
         except:
-            raise IceGauntlet.RoomNotExists
+            raise IceGauntlet.RoomNotExists()
 
             
         if os.path.exists(fichero_room):
             try:
-                with open('client-distrib-icegauntlet/publicmaps.json') as f:
+                with open('servidor_'+self.id_server+'/publicmaps.json') as f:
                     maps = f.read()
                 maps = json.loads(maps)
             except FileNotFoundError:
@@ -111,10 +111,42 @@ class ServerI(IceGauntlet.RoomManager):
             else:
                 os.remove(fichero_room)
                 del maps[nombrefichero]
-                with open('client-distrib-icegauntlet/publicmaps.json', 'w') as f:
+                with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
                     json.dump(maps, f, indent=4)
         else:
             raise IceGauntlet.RoomNotExists()
+        
+        servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
+        servers_sync_prx.removedRoom(roomName)
+
+    def getRoom(self,roomName, current= None):
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+        data=''
+        try:
+            for i in ficheros:
+                with open(i, 'r') as f:
+                    d = f.read()
+                d = json.loads(d)
+        except:
+            raise IceGauntlet.RoomNotExists()
+        
+        return str(d['data'])
+        ###Buscar en la ruta 
+        ### si no esta lanzar error RoomNotexit 
+        #### return data
+
+    def availableRooms(self,current=None):
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+        roomList=[]
+        try:
+            for i in ficheros:
+                with open(i, 'r') as f:
+                    d = f.read()
+                d = json.loads(d)
+                roomList.append(d['room'])
+        except:
+            raise IceGauntlet.RoomNotExists()
+        return roomList
 class DungeonI(IceGauntlet.Dungeon):
     def getRoom(self, current=None):
         '''
@@ -158,10 +190,59 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
 
     def announce(self, room_manager_prx, id_server, current=None):
         
-        
-        if self.id_server != id_server and id_server not in lista :
+        keys = lista.keys()
+        if self.id_server != id_server and id_server not in keys :
             lista[id_server]= room_manager_prx
+            ## viejo   -----------------------> nuevo 
             print('ANNOUNCE '+id_server+' conoce a ' + self.id_server)
+
+            conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
+            mapas=conexion.availableRooms()
+            print(mapas)
+            for i in mapas :
+                print('imprimo i : ', i)
+                conexion=  IceGauntlet.RoomManagerPrx.uncheckedCast(room_manager_prx)
+                mapa=conexion.getRoom(i)
+                datos=json.loads(mapa)
+                habitacion = {
+                    "data" : datos,
+                    "room" : i
+                }
+                room = ''.join(sample(string.ascii_letters, 8))
+                ruta = 'servidor_'+self.id_server+'/mapas/'+room+'.json'
+                if self.RoomExists(datos):
+                    with open(ruta, 'w') as f:
+                        json.dump(habitacion, f, indent=4)
+                    try:
+                        with open('servidor_'+self.id_server+'/publicmaps.json') as f:
+                            maps = f.read()
+                            maps = json.loads(maps)
+                    except:
+                        print("Eror, Not found data base")
+
+                    maps[room] = {'user' : id_server,
+                                'name' : i}
+                    with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
+                        json.dump(maps, f, indent=4)
+
+    
+    def RoomExists(self, roomData):
+        '''
+        roomAlreadyExists method
+        '''
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+        for i in ficheros:
+            with open(i, 'r') as f:
+                d = f.read()
+            d = json.loads(d)
+            if d['data'] == roomData:
+                print('FALSE')
+                return False
+        return True
+        print("Error, not found data base")
+
+
+
         
     def hello_client(self, current=None):
         servers_sync_prx = IceGauntlet.RoomManagerSyncPrx.uncheckedCast(self.room_manager_sync_channel_prx.getPublisher()) 
@@ -171,12 +252,41 @@ class ServerSyncI(IceGauntlet.RoomManagerSync):
         '''room_manager_prx.publish
         a = [room_manager_prx, room_manager_prx, room_manager_prx]
         a[0].publish'''
-        newroom=lista[id_server].getRoom(roomName)
+        #newroom=lista[id_server].getRoom(roomName)
         
         print('newRoom')
     
     def removedRoom(self, roomName, current=None):
-        print('removedRoom')
+        print('removeRooom')
+        print(self.id_server)
+        ficheros = glob('servidor_'+self.id_server+'/mapas/*.json')
+        fichero_room = ''
+        nombrefichero = ''
+        try:
+            for i in ficheros:
+                with open(i, 'r') as f:
+                    d = f.read()
+                d = json.loads(d)
+                if d['room'] == roomName:
+                    fichero_room = i
+                    nombrefichero = i.split('/')[2].split('.')[0]
+        except:
+            pass
+
+        if os.path.exists(fichero_room):
+            try:
+                with open('servidor_'+self.id_server+'/publicmaps.json') as f:
+                    maps = f.read()
+                maps = json.loads(maps)
+            except FileNotFoundError:
+                print("Eror, Not found data base")
+
+            os.remove(fichero_room)
+            del maps[nombrefichero]
+            with open('servidor_'+self.id_server+'/publicmaps.json', 'w') as f:
+                json.dump(maps, f, indent=4)
+        else:
+            pass
 
 
 
@@ -196,8 +306,10 @@ class Server(Ice.Application):
             raise RuntimeError('Invalid Proxy')
 
         id_server = uuid.uuid4().hex
+        os.mkdir('servidor_'+id_server)
+        os.mkdir('servidor_'+id_server+'/mapas')
         adapter = self.communicator().createObjectAdapter(ADAPTER)
-        server = ServerI(auth_server)
+        server = ServerI(auth_server,None, None)
         proxy = adapter.add(server, Ice.stringToIdentity("proxy_maps_"+id_server))
 
         icestorm_proxy = self.communicator().stringToProxy(ICESTORM_MANAGER)
@@ -226,6 +338,11 @@ class Server(Ice.Application):
         '''
         hello
         '''
+        file = open('servidor_'+id_server+'/publicmaps.json', "w")
+        file.write('{}')
+        file.close()
+        server.room_manager_sync_channel_prx=room_manager_sync_channel_prx
+        server.id_server=id_server
         server_sync.hello_client()
         
         
